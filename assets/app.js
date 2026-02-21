@@ -30,7 +30,7 @@ const state = {
 
   // 组卷打印（本机）
   builder: {
-    paperTitle: "六年级奥数练习卷",
+    paperTitle: "筱萱的六年级奥数练习卷",
     topic: "__all",
     model: "__all",
     diff: "__all",
@@ -665,8 +665,8 @@ function renderShell(contentHTML){
         <div class="brand">
           <div class="logo" aria-hidden="true"></div>
           <div>
-            <h1>初中竞赛衔接 · 奥数训练（六年级）</h1>
-            <p>题库 ${total} 题｜知识点 × 题型｜组卷打印｜错题本｜拍照批改（本机）</p>
+            <h1>筱萱的奥数训练 · 初中竞赛衔接（六年级）</h1>
+            <p>筱萱专属｜题库 ${total} 题｜知识点 × 题型｜组卷打印｜错题本｜拍照批改（本机）</p>
           </div>
         </div>
         <div class="nav">
@@ -1450,7 +1450,7 @@ function renderProfile(){
    - “生成 PDF”采用浏览器打印：打开打印版页面 → Ctrl+P / 打印 → 选择“另存为 PDF”
      优点：中文与公式显示更稳，不需要在前端嵌入巨大的中文字体。
    - “生成 Word”导出为 .doc（HTML 格式），Word/WPS 可直接打开并另存为 docx。
-   - 为拍照批改做准备：打印版每题左侧带 QR（assets/qrcode/<id>.png），便于识别题目编号。
+   - 为拍照批改做准备：打印版每题左侧带 QR（已打包到单文件 assets/qrcode_pack.js），便于识别题目编号。
 */
 
 function getPaperSelection(){
@@ -1522,7 +1522,7 @@ function openPrintView(ids, paperTitle, withAnswer){
       <div class="q">
         <div class="qhead">
           <div class="qleft">
-            <img class="qr" src="./assets/qrcode/${encodeURIComponent(p.id)}.png" alt="${escapeHTML(p.id)}" />
+            <img class="qr" data-qid="${escapeHTML(p.id)}" alt="${escapeHTML(p.id)}" />
           </div>
           <div class="qright">
             <div class="qmeta">${idx+1}. ${meta}</div>
@@ -1589,14 +1589,23 @@ function openPrintView(ids, paperTitle, withAnswer){
 
   <div class="wrap">
     <h1>${escapeHTML(title)}</h1>
-    <div class="sub">题目数量：${ids.length} · 生成时间：${new Date().toLocaleString()}</div>
+    <div class="sub">姓名：筱萱 · 题目数量：${ids.length} · 生成时间：${new Date().toLocaleString()}</div>
     ${questions}
   </div>
 
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="./assets/qrcode_pack.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script>
+    try{
+      const pack = window.__QRCODE_PACK__ || {};
+      document.querySelectorAll("img.qr[data-qid]").forEach(img=>{
+        const id = img.getAttribute("data-qid");
+        if(pack[id]) img.src = pack[id];
+      });
+    }catch(e){}
     window.addEventListener("load", () => {
+
       try{
         if(window.renderMathInElement){
           renderMathInElement(document.body, {
@@ -1635,7 +1644,7 @@ function exportWordDoc(ids, paperTitle, withAnswer){
   const parts = [];
   parts.push(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHTML(title)}</title></head><body>`);
   parts.push(`<h1>${escapeHTML(title)}</h1>`);
-  parts.push(`<div>题目数量：${ids.length} · 导出时间：${new Date().toLocaleString()}</div><hr/>`);
+  parts.push(`<div>姓名：筱萱 · 题目数量：${ids.length} · 导出时间：${new Date().toLocaleString()}</div><hr/>`);
 
   ids.forEach((id, idx)=>{
     const p = state.data.problems.find(x=>x.id===id);
@@ -1708,7 +1717,7 @@ function renderBuilder(){
 
       <div class="help">
         ✅ “生成 PDF”采用浏览器打印：打开打印版 → 打印 → 选择“另存为 PDF”。<br/>
-        ✅ 打印版每题带二维码（题目 ID），方便后续“拍照批改”识别题目。<br/>
+        ✅ 打印版每题带二维码（题目 ID，二维码已合并为单文件），方便后续“拍照批改”识别题目。<br/>
         ⚠️ 如果点击按钮没反应，请检查浏览器是否拦截弹窗。
       </div>
 
